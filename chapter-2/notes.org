@@ -1,0 +1,121 @@
+* Chapter 2
+
+Everything is an expression or declaration.
+
+Reminder - 'normal form' is when the expression cannot be further reduced.
+
+* 'redexes'
+  Reducible expressions are called 'redexes'.
+  Reducing is also referred to as 'normalizing' or 'executing' an expression.
+  'values' are expressions that cannot be reduced or evaluated, i.e. a value is after a redex has been reduced.
+
+* Functions
+  The most basic unit - related to mathematical functions. Take one argument and
+  return another and are pure. Always curried. Extract common bits to an
+  abstraction (e.g. times3) Arguments of a function (e.g. 'triple x') correspond
+  to the Lambda 'head'. Bits after the '=' are the Lambda body. Reduction
+  happens as normal, the parameters passed to the head substitute the variables
+  in the body.
+
+  'Argument' refers to the values that the function is applied against and
+  parameters are bound to arguments inside the function body. e.g. given f x =
+  x + 2, '2' is added to the argument f is applied to. x is a parameter the
+  argument is bound to, so 'f 6' means 6 is the argument which is bound to the parameter x.
+
+  Modules and types are CamelCase
+  Functions are camelBack style
+  Variables are lowercase (? can we use camelBack?)
+
+** Substitution
+   1 triple x = x * 3
+   2 triple 6
+   3 [x := 6]
+   4 triple 6 = 6 * 3
+   5 6 * 3
+   6 18
+
+   The value 6 is the canonical or normal form of the expression 'triple 6'
+
+*** Conventions
+    type variables = a..z or a1
+    functions that are arguments are labelled f..z or f1
+    similar arguments are labelled a and a' (aka 'a prime'
+    arguments to functions x..z often numbered from 1
+    an f that returns xs would be called xs. Often seen as (x:xs)
+
+* Exercises (p65)
+** REPL
+*** add 'let' onto the beginning
+** Functions
+*** (see notes)
+
+** Infix operators
+   By default most functions are prefix. 'Operators' are infix functions.
+   Quote prefix operators to use them infix: 10 `div` 10 == div 10 10
+
+   GHCi will show the precedence and associativity using :info.
+   'infixr' and 'infixl' mean right associative and left associative
+   info gives the precendence as an Integer, higher wins, so (^) is 8, (*) is 7, (+) is 6
+
+* Exercises (p69)
+ 1: yep because operators have difference precedence
+ 2: no as the parenthesis follow the defined precedence
+ 3: yes
+
+** Modules
+   Must start with 'module X where'
+   Space (not tabs)
+   Indentation is important
+   Trailing whitespace is bad form
+   Code that is part of an expression is indented under that expression
+
+See learn.hs for examples.
+
+* Exercises (p76)
+ - 'let area x = 3.14 * (x * x)'
+ - 'let double x = x * 2'
+ - y has a trailing space
+
+* Maths
+  ALWAYS use 'div' for integral division. Use 'rem' for the remainder of a division.
+  'mod' and 'rem' are integral so 'rem 3 12' == 'mod 3 12' == 3 because 2 div 12 = 0
+  'mod' takes the sign of the divisor, 'rem' takes the sign of the dividend: '3 + (mod (-12) 7)' == 5, but 'rem' gives -2
+** Negative numbers
+   negative numbers need to be evaluated if operators with the same precedence are in the same expression. -10 is fine but '1000 + -9' isn't because the '+' and '-' operators are the same.
+
+* Sectioning
+  Sectioning allows you to pass around partially applied functions such as '(+1)' or '(/1)'. Associativity matters are you would expect so '(1/)2' == 0.5 and '(/1)2' = 2
+  Subtraction is a special case because '-' when applied to a single argument it becomes 'negation' not subtraction:
+*** 2 - 1 == (-) 2 1 BUT (-2) 1 fails as it is applying '-2' to the value '1'
+
+* Evaluation
+  Reducing involves evaluating an expression until it reaches its simplest, or normal form at which point it is 'irreducible'.
+  Haskell is lazy which defers evaluation until it is required.
+
+* Let and Where
+  Introduce names for expressions.
+  'let' is just sugar for a lambda
+  Anonymous functions use a '\' e.g. (\x -> x) 0 == 0. 'let id = \x -> x' == 'let id x = x'
+  'let a = b in c' === '(\a -> c) b', e.g. 'let x = 10 in x + 1' === '(\x -> x + 1) 10'
+  'c where a = b' === '(\a -> c) b'
+
+* Exercises (p90)
+  1. let x = 3; y = 1000 in x * 3 + y === let x = x * 3 + y where x = 3; y = 1000
+  2. let y = 10; x = 10 * 5 + y in x * 5 === let d = x * 5 where y = 10l x = 10 * 5 + y
+  3. let x = 7; y = negate x; z = y * 10 in z / x + y == let z' = z / x + y where x = 7; y = negate x; z = y * 10
+
+* What does '$' mean?
+  It has the lowest precedence and basically means 'evaluate everything to the right of me first'
+  (2^) $ 2 + 2 == 16 == (2^) (2 + 2) == 16. (2^) 2 + 2 == 6
+  (2^) $ (+2) $ 3*2 == 256
+
+* Exercises (p93)
+  1. 2 + 2 * 3 - 1 == 2 + ((2 * 3) -1)
+  2. (^) 10 $ 1 = 1 == (^) 10 $ (1 + 1) == 10 ^ 2
+  3. 2 ^ 2 * 4 ^ 5 + 1 === ((2 ^ 2) * (4 ^ 5)) + 1
+** Pairs
+   1. Yep
+   2. Nope
+   3. Nope
+   4. Nope (Integer v float)
+   5. Nope (different precedence)

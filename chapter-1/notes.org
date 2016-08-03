@@ -1,0 +1,123 @@
+* Chapter 1
+
+This chapter is primarily about the fundamentals of Functional Programming and Haskell. It covers the history of Haskell and gives a thorough, but succinct introduction to Lambda Calculus.
+
+* Functional Programming
+** Variables
+** Constant values
+   1, 2 "a"
+** Expressions
+Superset of variable, constant and expression?
+
+** Functions
+   Functions are 'expressions' applied to other expressions.
+   a relation from the  input set (domain) to the output set (codomain).
+     codomain is the range. All domains and codomains are unique but the range may contain duplicates. (if < 10 then 1 else 0)
+   'pure' (aka 'referentially transparent' map from one input to the same output every time. This allows substitution.
+* Lambda Calculus
+** Lambda Terms
+   Three components (or lambda terms)
+*** expressions
+    Superset of all three. Variable name, value, abstraction or combination.
+*** variables
+*** abstractions
+    A function. A lambda term that has a head (the lambda and named parameters) and a body. These are applied to its argument. e.g. <lambda>x.x. "<lambda>x" is the head with a named variable 'x', its body is also 'x'. Variable in the head is the 'parameter' and 'binds' all instances of that parameter.
+
+    Binding is the act of associating the argument to the named parameters in the head and then replacing the instants of that parameter in the body. This is how substitution works.
+* Alpha equivalence
+  Lambdas are equivalent when the parameters and the body are the same (regardless of naming), so <lambda>x.x == <lambda>y.y == <lambda>p.p.
+
+  Lambdas with free variables are NOT equivalent.
+* (Beta) Reduction
+Applying a function to an argument 'reduces' it. 'beta' reduction is the substitution of the input expression to the bound variables inside the body of the abstraction. When all bound variables are substituted the head is eliminated as its only purpose was to bind the variables.
+(<lambda>x.x)2 binds x to 2, no more parameters to bind the 2 argument to so the head is eliminated so 'x', which is bound to 2.
+
+Eliminating the head means the function (abstraction) has been 'applied'.
+
+Abstractions can also be applied to other abstractions: '<lambda>x.x <lambda>y.y'.
+
+The identity lambda (mathematically f(x) = x) is <lambda>x.x.
+
+Syntax for substitution is '[x:= ?]' where '?' is the substitution so:
+ - (<lambda>x.x)(<lambda>y.y)
+ - [x := (<lamda>y.y)]
+ - <lambda>y.y
+
+Association is left-associative so '(<lambda>x.x)(<lambda>y.y)2' == '((<lambda>x.x)(<lambda>y.y))2'
+** Free variables
+   'Free' variables have no binding, in other words they are not named in the head. Lambdas with free variables are not reducible:
+
+   - (<lambda>x.xy)z
+   - (<lambda>[x := z].xy)
+   - zy
+* Currying
+  Lambdas can have multiple parameters but they only ever bind one at a time. Binding applies the first parameter and eliminates the head, then applies that to the second head and so on.
+
+  '<lambda>xy.xy' is really '<lambda>x.(<lambda.xy)'
+
+  - <lambda>xy.xy
+  - (<lambda>xy.xy) 1 2
+  - (<lambda>x(<lambda>y.xy)) 1 2
+  - [x := 1]
+  - (<lambda>y.1y>) 2
+  - [y := 2]
+  - 1 2
+
+  Read p44 for more detail.
+
+* Equivalence Exercises
+
+1. Lxy.zz == Lmn.mz
+2. Lxy.xxy == Lx(Ly.xy) == La(Lb.aab))
+3. Lxyz.zx == Ltos.st == Q? Lx.(Ly.(Lz.z)) because X gets thrown away? Q?
+
+
+* Beta normal form
+
+'Beta normal form' is when you cannot further beta reduce. This corresponds to a fully evaluated expression === a full executed program.
+
+10 + 2 * 5 is beta reduced to 110.
+
+* Combinators
+
+A lambda term with no free variables. Combinations only 'combine' their arguments.
+
+Examples:
+ - Lx.x
+ - Lxy.x
+ - Lxyz.xz(yz)
+
+Examples that aren't beta normal form:
+ - Ly.x (x is free)
+ - Lx.xz (z is free)
+
+* Divergence
+Divergence means the reduction never terminates (programming = infinite recurrence).
+
+Examples:
+ - (Lx.xx)(Lx.xx)
+ - [x := (Lx.xx)
+ - (Lx.xx)(Lx.xx)
+
+* Exercises
+
+** Combinators?
+*** Lx.xxx  = Yes - no free variables
+*** Lxy.xz - no, z is free
+*** Lxyz.xy(zx) - yes, no free variables
+*** Lxyz.xy(zxy) - yep
+*** Lxy.xy(zxy) no - z is a free variables
+
+** Normal form or diverge?
+*** Lx.xxx - normal form
+*** (Lz.zz)(Ly.yy) - diverges to (Ly.yy)(Ly.yy) and is alpha equivalent to (Lx.xx)(Lx.xx)
+*** (Lx.xxx)z - reduces to zzz so normal form'
+
+** Beta reduces
+*** (Labc.cba)zz(Lwv.w) == (Lbc.cbz)z(Lwv.w) == (Lc.czz)(Lwv.w) == (Lwv.w)zz = (Lv.z)z = z
+*** (Lx.Ly.xyy)(La.a)b == (Ly.(La.a)yy)b == (La.a)bb == bb
+*** (Ly.y)(Lx.xx)(Lz.zq) == (Lx.xx)(Lz.zq) == (Lz.zq)(Lz.zq) == (Lz.zq)(q) == qq
+*** (Lz.z)(Lz.zz)(Lz.zy) == (Lz.zz)(Lz.zy) == (Lz.zy)(Lz.zy) == (Lz.zy)(y) == yy
+*** (Lx.Ly.xyy)(Ly.y)y == (Ly.(Ly.y)yy)y == (Ly.y)yy) === yy
+*** (La.aa)(Lb.ba)c === (Lb.ba)(Lb.ba)c == (aa)c
+*** (Lxyz.xz(yz))(Lx.z)(Lx.a) === (Lyz.(yz)z)(Lx.z)(Lx.a) == (zz)(Lx.z)(Lx.a) == (zz)za (READ p52 to understand why this is wrong ;-)
